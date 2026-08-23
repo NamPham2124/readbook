@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-mocha-base: #1e1e2e;
+  --bg-mocha-mantle: #181825;
+  --bg-mocha-crust: #11111b;
+  --bg-mocha-surface0: #313244;
+  --bg-mocha-surface1: #45475a;
+  --text-mocha-text: #cdd6f4;
+  --text-mocha-subtext0: #a6adc8;
+  --accent-blue: #89b4fa;
+  --accent-green: #a6e3a1;
+  --accent-yellow: #f9e2af;
+  --accent-red: #f38ba8;
+  --accent-mauve: #cba6f7;
+}
+
+body {
+  background-color: #1e1e2e;
+  color: #cdd6f4;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom modern scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #181825;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #45475a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #585b70;
+}
+
+/* Text Selection */
+::selection {
+  background-color: rgba(137, 180, 250, 0.35);
+  color: #ffffff;
+}
+
+/* Glassmorphism utility */
+.glass-card {
+  background: rgba(30, 30, 46, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(137, 180, 250, 0.15);
+}
+
+.glass-card:hover {
+  border-color: rgba(137, 180, 250, 0.35);
+}
+
+/* PDF Text layer styling */
+.textLayer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 0.25;
+  line-height: 1;
+  transform-origin: 0 0;
+}
+
+.textLayer span {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0 0;
+}
+
+.textLayer ::selection {
+  background: #89b4fa;
+  opacity: 0.5;
+}
