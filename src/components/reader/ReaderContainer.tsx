@@ -9,6 +9,7 @@ import { NotesSidebar } from '@/components/reader/NotesSidebar';
 import { HighlightsSidebar } from '@/components/reader/HighlightsSidebar';
 import { TagsSidebar } from '@/components/reader/TagsSidebar';
 import { TranslationPopup } from '@/components/reader/TranslationPopup';
+import { ExportNotesModal } from '@/components/reader/ExportNotesModal';
 import { Loader2, Edit3, Highlighter, Tag as TagIcon } from 'lucide-react';
 import type {
   Book,
@@ -61,6 +62,9 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
     y: 0,
     selectedText: '',
   });
+
+  // Export Notes Modal State
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Annotation Data State
   const [toc, setToc] = useState<any[]>([]);
@@ -390,7 +394,6 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
   // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger when typing in inputs/textareas
       if (
         ['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName) ||
         (e.target as HTMLElement).isContentEditable
@@ -408,6 +411,8 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
         handleToggleBookmark(currentPage);
       } else if (e.key === 't' || e.key === 'T') {
         handleToggleTranslateMode();
+      } else if (e.key === 'e' || e.key === 'E') {
+        setShowExportModal(true);
       }
     };
 
@@ -419,7 +424,7 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
     return (
       <div className="min-h-screen bg-mocha-base flex flex-col items-center justify-center space-y-4">
         <Loader2 className="w-10 h-10 animate-spin text-mocha-blue" />
-        <p className="text-sm font-semibold text-mocha-subtext0">Opening book in Reader...</p>
+        <p className="text-sm font-semibold text-mocha-subtext0">Đang mở sách trong Reader...</p>
       </div>
     );
   }
@@ -428,13 +433,13 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
     return (
       <div className="min-h-screen bg-mocha-base flex flex-col items-center justify-center p-6 text-center space-y-4">
         <div className="p-4 bg-mocha-red/10 border border-mocha-red/20 rounded-2xl text-mocha-red text-sm font-bold max-w-md">
-          {error || 'Unable to open this book. Please try again.'}
+          {error || 'Không thể mở cuốn sách này. Vui lòng thử lại.'}
         </div>
         <button
           onClick={() => window.location.reload()}
           className="px-4 py-2 bg-mocha-surface0 hover:bg-mocha-surface1 text-mocha-text rounded-xl text-xs font-bold transition-colors"
         >
-          Reload Page
+          Tải lại trang
         </button>
       </div>
     );
@@ -467,6 +472,7 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
         rightActiveTab={rightActiveTab}
         translateMode={translateMode}
         onToggleTranslateMode={handleToggleTranslateMode}
+        onOpenExportModal={() => setShowExportModal(true)}
       />
 
       {/* Main Workspace Area */}
@@ -575,6 +581,7 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
                   onAddVocabulary={handleAddVocabulary}
                   onUpdateVocabulary={handleUpdateVocabulary}
                   onDeleteVocabulary={handleDeleteVocabulary}
+                  onOpenExportModal={() => setShowExportModal(true)}
                 />
               )}
 
@@ -601,6 +608,16 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
             </div>
           </div>
         )}
+
+        {/* 📥 Export Notes & Vocabulary Modal */}
+        <ExportNotesModal
+          isOpen={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          book={book}
+          notes={notes}
+          vocabularies={vocabularies}
+          highlights={highlights}
+        />
       </div>
     </div>
   );

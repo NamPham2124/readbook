@@ -13,11 +13,11 @@ import {
   PanelLeft,
   PanelRight,
   RotateCw,
-  Search,
-  BookOpen,
   Languages,
+  Download,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Logo } from '@/components/ui/Logo';
+import { ThemeSelector } from '@/components/ui/ThemeSelector';
 
 interface ReaderHeaderProps {
   title: string;
@@ -38,6 +38,7 @@ interface ReaderHeaderProps {
   rightActiveTab: 'notes' | 'highlights' | 'tags';
   translateMode?: boolean;
   onToggleTranslateMode?: () => void;
+  onOpenExportModal?: () => void;
 }
 
 export function ReaderHeader({
@@ -58,10 +59,11 @@ export function ReaderHeader({
   onToggleRightSidebar,
   translateMode = false,
   onToggleTranslateMode,
+  onOpenExportModal,
 }: ReaderHeaderProps) {
   return (
     <header className="h-14 bg-mocha-mantle border-b border-mocha-surface0 px-3 flex items-center justify-between gap-2 z-30 select-none">
-      {/* Left: Back to library & TOC toggle */}
+      {/* Left: Back to library, Logo & TOC toggle */}
       <div className="flex items-center gap-1.5 shrink-0">
         <Link
           href="/library"
@@ -72,7 +74,7 @@ export function ReaderHeader({
           <span className="hidden sm:inline">Thư viện</span>
         </Link>
 
-        <div className="h-4 w-px bg-mocha-surface0 mx-1" />
+        <div className="h-4 w-px bg-mocha-surface0 mx-0.5" />
 
         <button
           onClick={onToggleLeftSidebar}
@@ -86,10 +88,13 @@ export function ReaderHeader({
           <PanelLeft className="w-4 h-4" />
         </button>
 
-        {/* Title */}
-        <h2 className="hidden md:block text-xs font-bold text-mocha-text truncate max-w-[180px] lg:max-w-[280px] ml-2">
-          {title}
-        </h2>
+        {/* Title & Small Logo */}
+        <div className="hidden md:flex items-center gap-2 ml-2">
+          <Logo size="sm" showText={false} />
+          <h2 className="text-xs font-bold text-mocha-text truncate max-w-[160px] lg:max-w-[260px]">
+            {title}
+          </h2>
+        </div>
       </div>
 
       {/* Center: Page navigation controls */}
@@ -130,8 +135,8 @@ export function ReaderHeader({
         </button>
       </div>
 
-      {/* Right: Translate Toggle, Zoom, Rotate, Fullscreen, Sidebar */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      {/* Right: Translate Toggle, Theme Switcher, Export, Zoom, Fullscreen, Sidebar */}
+      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
         {/* 🌐 Translate Mode Toggle Button */}
         {onToggleTranslateMode && (
           <button
@@ -152,6 +157,21 @@ export function ReaderHeader({
             {translateMode && (
               <span className="w-2 h-2 rounded-full bg-mocha-teal animate-pulse" />
             )}
+          </button>
+        )}
+
+        {/* 🎨 Theme Selector in Reader Header */}
+        <ThemeSelector compact={true} align="right" />
+
+        {/* 📥 Export Notes & Vocabulary Button */}
+        {onOpenExportModal && (
+          <button
+            onClick={onOpenExportModal}
+            className="flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-bold text-mocha-blue bg-mocha-blue/10 hover:bg-mocha-blue/20 border border-mocha-blue/30 transition-all shadow-sm"
+            title="Xuất file Ghi Chú & Bảng Từ Vựng (Markdown, Anki CSV, PDF)"
+          >
+            <Download className="w-4 h-4 text-mocha-blue" />
+            <span className="hidden lg:inline">Xuất File</span>
           </button>
         )}
 
@@ -178,20 +198,10 @@ export function ReaderHeader({
           </button>
         </div>
 
-        {onFitWidth && (
-          <button
-            onClick={onFitWidth}
-            className="hidden lg:inline-flex px-2 py-1 text-[11px] font-semibold text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 rounded-lg transition-colors"
-            title="Vừa Chiều Ngang"
-          >
-            Fit Width
-          </button>
-        )}
-
         {onRotate && (
           <button
             onClick={onRotate}
-            className="p-1.5 rounded-lg text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 transition-colors"
+            className="hidden md:inline-flex p-1.5 rounded-lg text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 transition-colors"
             title="Xoay 90°"
           >
             <RotateCw className="w-4 h-4" />

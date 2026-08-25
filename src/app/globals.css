@@ -2,29 +2,140 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+/* ==========================================================================
+   1. Theme Variables & Palettes
+   ========================================================================== */
+
+:root,
+[data-theme="mocha"] {
   --bg-mocha-base: #1e1e2e;
   --bg-mocha-mantle: #181825;
   --bg-mocha-crust: #11111b;
   --bg-mocha-surface0: #313244;
   --bg-mocha-surface1: #45475a;
+  --bg-mocha-surface2: #585b70;
+  --bg-mocha-overlay0: #6c7086;
+  --bg-mocha-overlay1: #7f849c;
+  --bg-mocha-overlay2: #9399b2;
   --text-mocha-text: #cdd6f4;
   --text-mocha-subtext0: #a6adc8;
+  --text-mocha-subtext1: #bac2de;
   --accent-blue: #89b4fa;
   --accent-green: #a6e3a1;
   --accent-yellow: #f9e2af;
   --accent-red: #f38ba8;
   --accent-mauve: #cba6f7;
   --accent-teal: #94e2d5;
+  --accent-lavender: #b4befe;
+  --reader-filter: none;
 }
 
+/* 2. Catppuccin Latte (Clean Light Mode) */
+[data-theme="latte"] {
+  --bg-mocha-base: #eff1f5;
+  --bg-mocha-mantle: #e6e9ef;
+  --bg-mocha-crust: #dce0e8;
+  --bg-mocha-surface0: #ccd0da;
+  --bg-mocha-surface1: #bcc0cc;
+  --bg-mocha-surface2: #acb0be;
+  --bg-mocha-overlay0: #9ca0b0;
+  --bg-mocha-overlay1: #8c8fa1;
+  --bg-mocha-overlay2: #7c7f93;
+  --text-mocha-text: #4c4f69;
+  --text-mocha-subtext0: #6c6f85;
+  --text-mocha-subtext1: #5c5f77;
+  --accent-blue: #1e66f5;
+  --accent-green: #40a02b;
+  --accent-yellow: #df8e1d;
+  --accent-red: #d20f39;
+  --accent-mauve: #8839ef;
+  --accent-teal: #179299;
+  --accent-lavender: #7287fd;
+  --reader-filter: none;
+}
+
+/* 3. Sepia / Warm Book Paper (Eye Comfort) */
+[data-theme="sepia"] {
+  --bg-mocha-base: #f7eed7;
+  --bg-mocha-mantle: #ecdfc2;
+  --bg-mocha-crust: #dfcea5;
+  --bg-mocha-surface0: #d6bf91;
+  --bg-mocha-surface1: #c9af7e;
+  --bg-mocha-surface2: #b89c68;
+  --bg-mocha-overlay0: #997e50;
+  --bg-mocha-overlay1: #80673c;
+  --bg-mocha-overlay2: #6e552d;
+  --text-mocha-text: #3e2d1a;
+  --text-mocha-subtext0: #634b30;
+  --text-mocha-subtext1: #523c24;
+  --accent-blue: #a36224;
+  --accent-green: #597d35;
+  --accent-yellow: #c48b28;
+  --accent-red: #b84233;
+  --accent-mauve: #8f5885;
+  --accent-teal: #4b8075;
+  --accent-lavender: #8a6c9e;
+  --reader-filter: sepia(0.25) contrast(0.95);
+}
+
+/* 4. Midnight Slate / Nord (Deep Oceanic Blue) */
+[data-theme="nord"] {
+  --bg-mocha-base: #0f172a;
+  --bg-mocha-mantle: #090e1a;
+  --bg-mocha-crust: #030712;
+  --bg-mocha-surface0: #1e293b;
+  --bg-mocha-surface1: #334155;
+  --bg-mocha-surface2: #475569;
+  --bg-mocha-overlay0: #64748b;
+  --bg-mocha-overlay1: #94a3b8;
+  --bg-mocha-overlay2: #cbd5e1;
+  --text-mocha-text: #f8fafc;
+  --text-mocha-subtext0: #cbd5e1;
+  --text-mocha-subtext1: #94a3b8;
+  --accent-blue: #38bdf8;
+  --accent-green: #4ade80;
+  --accent-yellow: #fde047;
+  --accent-red: #f87171;
+  --accent-mauve: #a78bfa;
+  --accent-teal: #2dd4bf;
+  --accent-lavender: #818cf8;
+  --reader-filter: none;
+}
+
+/* 5. OLED Black (Pure Pitch Dark) */
+[data-theme="oled"] {
+  --bg-mocha-base: #000000;
+  --bg-mocha-mantle: #080808;
+  --bg-mocha-crust: #000000;
+  --bg-mocha-surface0: #141414;
+  --bg-mocha-surface1: #222222;
+  --bg-mocha-surface2: #333333;
+  --bg-mocha-overlay0: #555555;
+  --bg-mocha-overlay1: #777777;
+  --bg-mocha-overlay2: #999999;
+  --text-mocha-text: #ffffff;
+  --text-mocha-subtext0: #bbbbbb;
+  --text-mocha-subtext1: #aaaaaa;
+  --accent-blue: #60a5fa;
+  --accent-green: #34d399;
+  --accent-yellow: #fbbf24;
+  --accent-red: #f87171;
+  --accent-mauve: #c084fc;
+  --accent-teal: #2dd4bf;
+  --accent-lavender: #a5b4fc;
+  --reader-filter: none;
+}
+
+/* Global body styles with smooth theme transition */
+html,
 body {
-  background-color: #1e1e2e;
-  color: #cdd6f4;
+  background-color: var(--bg-mocha-base);
+  color: var(--text-mocha-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Custom modern scrollbars */
@@ -34,33 +145,33 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #181825;
+  background: var(--bg-mocha-mantle);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #45475a;
+  background: var(--bg-mocha-surface1);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #585b70;
+  background: var(--bg-mocha-surface2);
 }
 
 /* Text Selection */
 ::selection {
-  background-color: rgba(137, 180, 250, 0.35);
+  background-color: var(--accent-blue);
   color: #ffffff;
 }
 
 /* Glassmorphism utility */
 .glass-card {
-  background: rgba(30, 30, 46, 0.75);
+  background: var(--bg-mocha-mantle);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(137, 180, 250, 0.15);
+  border: 1px solid var(--bg-mocha-surface0);
 }
 
 .glass-card:hover {
-  border-color: rgba(137, 180, 250, 0.35);
+  border-color: var(--accent-blue);
 }
 
 /* PDF Text layer styling for PC, iPad, and Mobile Touch */
@@ -95,6 +206,6 @@ body {
 }
 
 .textLayer ::selection {
-  background: #89b4fa;
+  background: var(--accent-blue);
   opacity: 0.5;
 }

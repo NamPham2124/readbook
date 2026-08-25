@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Edit3, Check, Loader2, FileText, ChevronRight, BookA } from 'lucide-react';
+import { Edit3, Check, Loader2, FileText, ChevronRight, BookA, Download } from 'lucide-react';
 import type { Note, Vocabulary } from '@/lib/types/database';
 import { VocabularyTable } from '@/components/reader/VocabularyTable';
 
@@ -22,6 +22,7 @@ interface NotesSidebarProps {
     updates: { word?: string; ipa?: string | null; translation?: string }
   ) => Promise<void>;
   onDeleteVocabulary: (id: string) => Promise<void>;
+  onOpenExportModal?: () => void;
 }
 
 export function NotesSidebar({
@@ -33,6 +34,7 @@ export function NotesSidebar({
   onAddVocabulary,
   onUpdateVocabulary,
   onDeleteVocabulary,
+  onOpenExportModal,
 }: NotesSidebarProps) {
   const currentNote = notes.find((n) => n.page_number === currentPage);
   const [content, setContent] = useState(currentNote?.content || '');
@@ -67,16 +69,14 @@ export function NotesSidebar({
     }, 800);
   };
 
-  const pageVocabCount = vocabularies.filter((v) => v.page_number === currentPage).length;
-
   return (
     <div className="flex flex-col h-full bg-mocha-mantle select-none overflow-hidden">
       {/* Header */}
-      <div className="p-3 border-b border-mocha-surface0 flex items-center justify-between shrink-0">
+      <div className="p-2.5 border-b border-mocha-surface0 flex items-center justify-between shrink-0 gap-1.5">
         <div className="flex items-center gap-1 bg-mocha-surface0/60 p-0.5 rounded-lg">
           <button
             onClick={() => setActiveTab('editor')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
+            className={`px-2 py-1 text-xs font-semibold rounded-md transition-colors ${
               activeTab === 'editor'
                 ? 'bg-mocha-surface1 text-mocha-blue'
                 : 'text-mocha-subtext0 hover:text-mocha-text'
@@ -86,7 +86,7 @@ export function NotesSidebar({
           </button>
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
+            className={`px-2 py-1 text-xs font-semibold rounded-md transition-colors ${
               activeTab === 'all'
                 ? 'bg-mocha-surface1 text-mocha-mauve'
                 : 'text-mocha-subtext0 hover:text-mocha-text'
@@ -96,21 +96,34 @@ export function NotesSidebar({
           </button>
         </div>
 
-        {activeTab === 'editor' && (
-          <div className="flex items-center gap-1 text-[11px] text-mocha-subtext0">
-            {saveStatus === 'saving' && (
-              <span className="flex items-center gap-1 text-mocha-yellow">
-                <Loader2 className="w-3 h-3 animate-spin" /> Lưu...
-              </span>
-            )}
-            {saveStatus === 'saved' && (
-              <span className="flex items-center gap-1 text-mocha-green">
-                <Check className="w-3 h-3" /> Đã lưu
-              </span>
-            )}
-            {saveStatus === 'unsaved' && <span className="text-mocha-overlay1">Chưa lưu</span>}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {activeTab === 'editor' && (
+            <div className="flex items-center gap-1 text-[11px] text-mocha-subtext0">
+              {saveStatus === 'saving' && (
+                <span className="flex items-center gap-1 text-mocha-yellow">
+                  <Loader2 className="w-3 h-3 animate-spin" /> Lưu...
+                </span>
+              )}
+              {saveStatus === 'saved' && (
+                <span className="flex items-center gap-1 text-mocha-green">
+                  <Check className="w-3 h-3" /> Đã lưu
+                </span>
+              )}
+              {saveStatus === 'unsaved' && <span className="text-mocha-overlay1">Chưa lưu</span>}
+            </div>
+          )}
+
+          {/* Export Notes Button */}
+          {onOpenExportModal && (
+            <button
+              onClick={onOpenExportModal}
+              className="p-1 rounded-lg text-mocha-blue hover:bg-mocha-blue/15 transition-colors"
+              title="Xuất File Ghi Chú & Từ Vựng"
+            >
+              <Download className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Body */}

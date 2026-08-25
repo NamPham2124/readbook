@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { BookOpen } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
+import { ThemeSelector } from '@/components/ui/ThemeSelector';
 import { APP_NAME } from '@/lib/constants';
 
 interface AuthCardProps {
@@ -23,18 +24,20 @@ export function AuthCard({
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-4 bg-mocha-crust relative overflow-hidden">
       {/* Ambient background glow */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-mocha-blue/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-mocha-mauve/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-mocha-blue/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-mocha-mauve/15 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Top right theme switcher */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeSelector />
+      </div>
 
       {/* Main card */}
-      <div className="w-full max-w-md bg-mocha-base/90 border border-mocha-surface0 rounded-2xl shadow-2xl p-8 backdrop-blur-xl z-10 space-y-6">
+      <div className="w-full max-w-md bg-mocha-base/90 border border-mocha-surface0 rounded-3xl shadow-2xl p-8 backdrop-blur-xl z-10 space-y-6">
         {/* Header Logo */}
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-mocha-blue to-mocha-mauve flex items-center justify-center shadow-lg shadow-mocha-blue/20">
-            <BookOpen className="w-6 h-6 text-mocha-crust" />
-          </div>
-          <h1 className="text-xl font-extrabold text-mocha-text tracking-tight">{APP_NAME}</h1>
-          <p className="text-xs text-mocha-subtext0 font-medium">{subtitle}</p>
+          <Logo size="lg" />
+          <p className="text-xs text-mocha-subtext0 font-medium pt-1">{subtitle}</p>
         </div>
 
         <div className="border-t border-mocha-surface0 pt-4">

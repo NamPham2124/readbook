@@ -3,11 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, Library, Shield, LogOut, User as UserIcon } from 'lucide-react';
+import { Library, Shield, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { APP_NAME } from '@/lib/constants';
+import { Logo } from '@/components/ui/Logo';
+import { ThemeSelector } from '@/components/ui/ThemeSelector';
 import type { Profile } from '@/lib/types/database';
 import { toast } from 'sonner';
 
@@ -23,11 +24,11 @@ export function Navbar({ profile }: NavbarProps) {
     try {
       const supabase = createClient();
       await supabase.auth.signOut();
-      toast.success('Signed out successfully.');
+      toast.success('Đã đăng xuất thành công.');
       router.push('/login');
       router.refresh();
     } catch (err: any) {
-      toast.error('Failed to sign out.');
+      toast.error('Đăng xuất thất bại.');
     }
   };
 
@@ -36,15 +37,10 @@ export function Navbar({ profile }: NavbarProps) {
   return (
     <header className="sticky top-0 z-40 w-full bg-mocha-mantle/80 backdrop-blur-md border-b border-mocha-surface0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand Logo */}
+        {/* Brand Logo & Navigation Links */}
         <div className="flex items-center gap-6">
-          <Link href="/library" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-mocha-blue to-mocha-mauve flex items-center justify-center shadow-md shadow-mocha-blue/20 group-hover:scale-105 transition-transform">
-              <BookOpen className="w-5 h-5 text-mocha-crust" />
-            </div>
-            <span className="font-extrabold text-lg text-mocha-text tracking-tight group-hover:text-mocha-blue transition-colors">
-              {APP_NAME}
-            </span>
+          <Link href="/library" className="group">
+            <Logo size="md" />
           </Link>
 
           {/* Navigation Links */}
@@ -57,7 +53,7 @@ export function Navbar({ profile }: NavbarProps) {
                   : 'text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0/50'
               }`}
             >
-              <Library className="w-4 h-4" /> Library
+              <Library className="w-4 h-4" /> Thư viện
             </Link>
 
             {isAdmin && (
@@ -69,16 +65,19 @@ export function Navbar({ profile }: NavbarProps) {
                     : 'text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0/50'
                 }`}
               >
-                <Shield className="w-4 h-4" /> Admin Dashboard
+                <Shield className="w-4 h-4" /> Quản trị Admin
               </Link>
             )}
           </nav>
         </div>
 
-        {/* Right actions: User info & logout */}
-        <div className="flex items-center gap-3">
+        {/* Right actions: Theme Selector, User info & logout */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* 🎨 Theme Selector */}
+          <ThemeSelector align="right" />
+
           {profile && (
-            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-mocha-surface0/50 border border-mocha-surface0">
+            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-mocha-surface0/50 border border-mocha-surface0">
               <div className="w-7 h-7 rounded-full bg-mocha-surface1 flex items-center justify-center text-xs font-bold text-mocha-blue">
                 {profile.display_name?.charAt(0).toUpperCase() || profile.email.charAt(0).toUpperCase()}
               </div>
@@ -98,11 +97,11 @@ export function Navbar({ profile }: NavbarProps) {
             variant="ghost"
             size="sm"
             onClick={handleLogout}
-            className="text-mocha-red hover:bg-mocha-red/15 hover:text-mocha-red gap-1.5"
-            title="Sign out"
+            className="text-mocha-red hover:bg-mocha-red/15 hover:text-mocha-red gap-1.5 rounded-xl"
+            title="Đăng xuất"
           >
             <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">Logout</span>
+            <span className="hidden sm:inline">Thoát</span>
           </Button>
         </div>
       </div>
