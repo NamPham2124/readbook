@@ -79,26 +79,48 @@ export function EpubViewer({
 
         await rendition.display();
 
-        // Handle Text Selection in EPUB iframe
-        rendition.on('selected', (cfiRange: string, contents: any) => {
+        const processEpubSelection = (contents: any) => {
           if (!translateModeRef.current || !onTranslateSelectionRef.current) return;
-
           try {
-            const iframe = viewerRef.current?.querySelector('iframe');
-            const iframeRect = iframe?.getBoundingClientRect();
-            const selection = contents.window.getSelection();
+            const win = contents.window || contents;
+            const selection = win.getSelection?.() || window.getSelection();
             const selectedText = selection?.toString()?.trim();
 
-            if (selectedText && selectedText.length > 0) {
+            if (selectedText && selectedText.length > 0 && !selection.isCollapsed) {
               const range = selection.getRangeAt(0);
               const rect = range.getBoundingClientRect();
+              const iframe = viewerRef.current?.querySelector('iframe');
+              const iframeRect = iframe?.getBoundingClientRect();
 
-              const viewportX = (iframeRect?.left || 0) + rect.right;
+              const viewportX = (iframeRect?.left || 0) + (rect.left + rect.width / 2);
               const viewportY = (iframeRect?.top || 0) + rect.bottom;
 
               onTranslateSelectionRef.current(selectedText, viewportX, viewportY);
             }
           } catch {}
+        };
+
+        // Handle Text Selection in EPUB iframe via epubjs events
+        rendition.on('selected', (cfiRange: string, contents: any) => {
+          processEpubSelection(contents);
+        });
+
+        // Register content hook for direct touch and selection change events in EPUB iframe
+        rendition.hooks.content.register((contents: any) => {
+          const doc = contents.document;
+          if (!doc) return;
+
+          let touchTimer: NodeJS.Timeout | null = null;
+          const onTouchOrSelection = () => {
+            if (touchTimer) clearTimeout(touchTimer);
+            touchTimer = setTimeout(() => {
+              processEpubSelection(contents);
+            }, 250);
+          };
+
+          doc.addEventListener('touchend', onTouchOrSelection);
+          doc.addEventListener('mouseup', onTouchOrSelection);
+          doc.addEventListener('selectionchange', onTouchOrSelection);
         });
 
         // Load Table of Contents

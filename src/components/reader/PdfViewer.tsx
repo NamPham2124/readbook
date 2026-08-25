@@ -181,8 +181,8 @@ export function PdfViewer({
     };
   }, [pdfDoc, currentPage, scale, rotation]);
 
-  // 3. Handle Mouse Text Selection
-  const handleMouseUp = useCallback(() => {
+  // 3. Handle Mouse and Touch Text Selection
+  const handleProcessSelection = useCallback(() => {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) {
       return;
@@ -190,6 +190,18 @@ export function PdfViewer({
 
     const selectedText = selection.toString().trim();
     if (!selectedText || !textLayerRef.current) {
+      return;
+    }
+
+    // Ensure selection is inside textLayer
+    const anchor = selection.anchorNode;
+    const focus = selection.focusNode;
+    if (
+      anchor &&
+      !textLayerRef.current.contains(anchor) &&
+      focus &&
+      !textLayerRef.current.contains(focus)
+    ) {
       return;
     }
 
@@ -207,7 +219,7 @@ export function PdfViewer({
       y1: Math.min(1, (r.bottom - containerRect.top) / containerRect.height),
     }));
 
-    // Position popup near the end of selection
+    // Position popup near the selection
     const lastRect = clientRects[clientRects.length - 1];
 
     if (translateMode && onTranslateSelection) {
@@ -225,6 +237,25 @@ export function PdfViewer({
       });
     }
   }, [translateMode, onTranslateSelection]);
+
+  // 4. Handle mobile & iPad touch selection changes
+  useEffect(() => {
+    let selectionTimeout: NodeJS.Timeout | null = null;
+
+    const handleDocSelectionChange = () => {
+      if (selectionTimeout) clearTimeout(selectionTimeout);
+      selectionTimeout = setTimeout(() => {
+        handleProcessSelection();
+      }, 250);
+    };
+
+    document.addEventListener('selectionchange', handleDocSelectionChange);
+
+    return () => {
+      if (selectionTimeout) clearTimeout(selectionTimeout);
+      document.removeEventListener('selectionchange', handleDocSelectionChange);
+    };
+  }, [handleProcessSelection]);
 
   const handleApplyHighlight = async (color: string) => {
     if (!selectionPopup.selectedText || selectionPopup.rects.length === 0) return;
@@ -271,8 +302,11 @@ export function PdfViewer({
   return (
     <div
       ref={containerRef}
-      className="flex-1 overflow-auto bg-mocha-crust/60 flex justify-center p-4 sm:p-8 relative min-h-0 select-text"
-      onMouseUp={handleMouseUp}
+      className="flex-1 overflow-auto bg-mocha-crust/60 flex justify-center p-4 sm:p-8 relative min-h-0 select-text touch-manipulation"
+      onMouseUp={handleProcessSelection}
+      onTouchEnd={() => {
+        setTimeout(handleProcessSelection, 200);
+      }}
     >
       <div className="relative shadow-2xl rounded-lg overflow-hidden bg-white shrink-0 self-start border border-mocha-surface0">
         {/* PDF Canvas */}

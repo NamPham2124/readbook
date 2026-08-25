@@ -35,6 +35,38 @@ export function TranslationPopup({
   const [translation, setTranslation] = useState<string>('');
   const [ipa, setIpa] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [coords, setCoords] = useState({ top: 100, left: 16 });
+
+  // Calculate viewport safe position for Mobile, iPad, and PC
+  useEffect(() => {
+    if (typeof window === 'undefined' || !visible) return;
+    const isMobile = window.innerWidth < 640;
+    const popupWidth = isMobile ? Math.min(window.innerWidth - 24, 360) : 380;
+    const popupHeight = 280;
+
+    let targetLeft: number;
+    let targetTop: number;
+
+    if (isMobile) {
+      // Center horizontally on mobile phones
+      targetLeft = Math.max(12, (window.innerWidth - popupWidth) / 2);
+      if (y > window.innerHeight - 300) {
+        targetTop = Math.max(16, y - popupHeight - 16);
+      } else {
+        targetTop = Math.min(window.innerHeight - popupHeight - 16, Math.max(16, y + 20));
+      }
+    } else {
+      // Tablet / iPad / PC
+      targetLeft = Math.max(16, Math.min(window.innerWidth - popupWidth - 16, x - popupWidth / 2));
+      if (y + popupHeight + 20 > window.innerHeight) {
+        targetTop = Math.max(16, y - popupHeight - 16);
+      } else {
+        targetTop = Math.min(window.innerHeight - popupHeight - 16, Math.max(16, y + 16));
+      }
+    }
+
+    setCoords({ top: targetTop, left: targetLeft });
+  }, [x, y, visible]);
 
   const fetchTranslationAndIpa = async (text: string) => {
     const cleanText = text.trim();
@@ -139,11 +171,12 @@ export function TranslationPopup({
     <div
       ref={popupRef}
       onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
-      className="fixed z-50 bg-mocha-mantle/95 backdrop-blur-md border border-mocha-surface1 rounded-2xl shadow-2xl p-4 w-80 sm:w-96 text-mocha-text space-y-3 pointer-events-auto animate-in zoom-in-95 duration-150"
+      className="fixed z-50 bg-mocha-mantle/95 backdrop-blur-md border border-mocha-surface1 rounded-2xl shadow-2xl p-4 w-[calc(100vw-24px)] max-w-[360px] sm:max-w-none sm:w-96 text-mocha-text space-y-3 pointer-events-auto animate-in zoom-in-95 duration-150"
       style={{
-        left: `${Math.max(16, Math.min(window.innerWidth - 390, x - 150))}px`,
-        top: `${Math.max(16, Math.min(window.innerHeight - 260, y + 16))}px`,
+        left: `${coords.left}px`,
+        top: `${coords.top}px`,
       }}
     >
       {/* Header: Title and Language indicator */}

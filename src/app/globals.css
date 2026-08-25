@@ -15,6 +15,7 @@
   --accent-yellow: #f9e2af;
   --accent-red: #f38ba8;
   --accent-mauve: #cba6f7;
+  --accent-teal: #94e2d5;
 }
 
 body {
@@ -23,6 +24,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Custom modern scrollbars */
@@ -61,7 +63,7 @@ body {
   border-color: rgba(137, 180, 250, 0.35);
 }
 
-/* PDF Text layer styling */
+/* PDF Text layer styling for PC, iPad, and Mobile Touch */
 .textLayer {
   position: absolute;
   left: 0;
@@ -72,6 +74,12 @@ body {
   opacity: 0.25;
   line-height: 1;
   transform-origin: 0 0;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+  touch-action: auto !important;
 }
 
 .textLayer span {
@@ -80,6 +88,10 @@ body {
   white-space: pre;
   cursor: text;
   transform-origin: 0 0;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
 }
 
 .textLayer ::selection {
