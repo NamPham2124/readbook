@@ -15,6 +15,7 @@ import {
   RotateCw,
   Search,
   BookOpen,
+  Languages,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -35,6 +36,8 @@ interface ReaderHeaderProps {
   showRightSidebar: boolean;
   onToggleRightSidebar: () => void;
   rightActiveTab: 'notes' | 'highlights' | 'tags';
+  translateMode?: boolean;
+  onToggleTranslateMode?: () => void;
 }
 
 export function ReaderHeader({
@@ -53,6 +56,8 @@ export function ReaderHeader({
   onToggleLeftSidebar,
   showRightSidebar,
   onToggleRightSidebar,
+  translateMode = false,
+  onToggleTranslateMode,
 }: ReaderHeaderProps) {
   return (
     <header className="h-14 bg-mocha-mantle border-b border-mocha-surface0 px-3 flex items-center justify-between gap-2 z-30 select-none">
@@ -61,10 +66,10 @@ export function ReaderHeader({
         <Link
           href="/library"
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 text-xs font-semibold transition-colors"
-          title="Back to Library"
+          title="Về Thư Viện"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Library</span>
+          <span className="hidden sm:inline">Thư viện</span>
         </Link>
 
         <div className="h-4 w-px bg-mocha-surface0 mx-1" />
@@ -76,13 +81,13 @@ export function ReaderHeader({
               ? 'bg-mocha-surface0 text-mocha-blue'
               : 'text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0/60'
           }`}
-          title="Toggle Table of Contents & Bookmarks"
+          title="Mục Lục & Đánh Dấu"
         >
           <PanelLeft className="w-4 h-4" />
         </button>
 
         {/* Title */}
-        <h2 className="hidden md:block text-xs font-bold text-mocha-text truncate max-w-[200px] lg:max-w-[320px] ml-2">
+        <h2 className="hidden md:block text-xs font-bold text-mocha-text truncate max-w-[180px] lg:max-w-[280px] ml-2">
           {title}
         </h2>
       </div>
@@ -93,7 +98,7 @@ export function ReaderHeader({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           className="p-1.5 rounded-lg text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 disabled:opacity-30 disabled:pointer-events-none transition-colors"
-          title="Previous Page (Left Arrow)"
+          title="Trang Trước (Mũi tên Trái)"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -119,14 +124,39 @@ export function ReaderHeader({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
           className="p-1.5 rounded-lg text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 disabled:opacity-30 disabled:pointer-events-none transition-colors"
-          title="Next Page (Right Arrow)"
+          title="Trang Tiếp (Mũi tên Phải)"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Right: Zoom, Rotate, Fullscreen, Annotation sidebar toggles */}
-      <div className="flex items-center gap-1 shrink-0">
+      {/* Right: Translate Toggle, Zoom, Rotate, Fullscreen, Sidebar */}
+      <div className="flex items-center gap-1.5 shrink-0">
+        {/* 🌐 Translate Mode Toggle Button */}
+        {onToggleTranslateMode && (
+          <button
+            onClick={onToggleTranslateMode}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              translateMode
+                ? 'bg-mocha-teal/20 text-mocha-teal border border-mocha-teal/50 shadow-sm ring-2 ring-mocha-teal/30 scale-105'
+                : 'text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 border border-transparent'
+            }`}
+            title={
+              translateMode
+                ? 'Chế độ Dịch Thuật: ĐANG BẬT (Bôi đen từ để dịch)'
+                : 'Bật Chế độ Dịch Thuật (🌐 Translate)'
+            }
+          >
+            <Languages className="w-4 h-4 text-mocha-teal" />
+            <span className="hidden sm:inline">Translate</span>
+            {translateMode && (
+              <span className="w-2 h-2 rounded-full bg-mocha-teal animate-pulse" />
+            )}
+          </button>
+        )}
+
+        <div className="h-4 w-px bg-mocha-surface0 mx-0.5" />
+
         {/* Zoom Controls */}
         <div className="hidden sm:flex items-center gap-0.5 bg-mocha-surface0/60 border border-mocha-surface1/60 rounded-lg p-0.5">
           <button
@@ -152,7 +182,7 @@ export function ReaderHeader({
           <button
             onClick={onFitWidth}
             className="hidden lg:inline-flex px-2 py-1 text-[11px] font-semibold text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 rounded-lg transition-colors"
-            title="Fit Width"
+            title="Vừa Chiều Ngang"
           >
             Fit Width
           </button>
@@ -162,7 +192,7 @@ export function ReaderHeader({
           <button
             onClick={onRotate}
             className="p-1.5 rounded-lg text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 transition-colors"
-            title="Rotate Clockwise (90°)"
+            title="Xoay 90°"
           >
             <RotateCw className="w-4 h-4" />
           </button>
@@ -171,12 +201,12 @@ export function ReaderHeader({
         <button
           onClick={onToggleFullscreen}
           className="p-1.5 rounded-lg text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 transition-colors"
-          title="Toggle Fullscreen (F)"
+          title="Toàn Màn Hình (F)"
         >
           {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
         </button>
 
-        <div className="h-4 w-px bg-mocha-surface0 mx-1" />
+        <div className="h-4 w-px bg-mocha-surface0 mx-0.5" />
 
         {/* Right Sidebar toggle */}
         <button
@@ -186,7 +216,7 @@ export function ReaderHeader({
               ? 'bg-mocha-surface0 text-mocha-mauve'
               : 'text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0/60'
           }`}
-          title="Toggle Notes & Highlights Panel"
+          title="Bảng Ghi Chú & Highlight"
         >
           <PanelRight className="w-4 h-4" />
         </button>

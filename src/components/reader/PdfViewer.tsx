@@ -21,6 +21,8 @@ interface PdfViewerProps {
   }) => Promise<void>;
   onDeleteHighlight: (highlightId: string) => Promise<void>;
   onExtractToc?: (toc: any[]) => void;
+  translateMode?: boolean;
+  onTranslateSelection?: (text: string, clientX: number, clientY: number) => void;
 }
 
 export function PdfViewer({
@@ -33,6 +35,8 @@ export function PdfViewer({
   onAddHighlight,
   onDeleteHighlight,
   onExtractToc,
+  translateMode = false,
+  onTranslateSelection,
 }: PdfViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -205,14 +209,22 @@ export function PdfViewer({
 
     // Position popup near the end of selection
     const lastRect = clientRects[clientRects.length - 1];
-    setSelectionPopup({
-      visible: true,
-      x: lastRect.right - containerRect.left,
-      y: lastRect.top - containerRect.top - 45,
-      selectedText,
-      rects: relativeRects,
-    });
-  }, []);
+
+    if (translateMode && onTranslateSelection) {
+      // In Translation Mode: trigger translation popup with viewport coordinates
+      onTranslateSelection(selectedText, lastRect.right, lastRect.bottom);
+      setSelectionPopup((prev) => ({ ...prev, visible: false }));
+    } else {
+      // In Normal Mode: trigger color highlight picker
+      setSelectionPopup({
+        visible: true,
+        x: lastRect.right - containerRect.left,
+        y: lastRect.top - containerRect.top - 45,
+        selectedText,
+        rects: relativeRects,
+      });
+    }
+  }, [translateMode, onTranslateSelection]);
 
   const handleApplyHighlight = async (color: string) => {
     if (!selectionPopup.selectedText || selectionPopup.rects.length === 0) return;

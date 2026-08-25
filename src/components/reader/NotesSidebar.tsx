@@ -1,21 +1,38 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Edit3, Check, Loader2, FileText, ChevronRight } from 'lucide-react';
-import type { Note } from '@/lib/types/database';
+import { Edit3, Check, Loader2, FileText, ChevronRight, BookA } from 'lucide-react';
+import type { Note, Vocabulary } from '@/lib/types/database';
+import { VocabularyTable } from '@/components/reader/VocabularyTable';
 
 interface NotesSidebarProps {
   currentPage: number;
   notes: Note[];
+  vocabularies: Vocabulary[];
   onSaveNote: (pageNumber: number, content: string) => Promise<void>;
   onJumpToPage: (page: number) => void;
+  onAddVocabulary: (vocab: {
+    word: string;
+    ipa: string | null;
+    translation: string;
+    page_number: number;
+  }) => Promise<void>;
+  onUpdateVocabulary: (
+    id: string,
+    updates: { word?: string; ipa?: string | null; translation?: string }
+  ) => Promise<void>;
+  onDeleteVocabulary: (id: string) => Promise<void>;
 }
 
 export function NotesSidebar({
   currentPage,
   notes,
+  vocabularies,
   onSaveNote,
   onJumpToPage,
+  onAddVocabulary,
+  onUpdateVocabulary,
+  onDeleteVocabulary,
 }: NotesSidebarProps) {
   const currentNote = notes.find((n) => n.page_number === currentPage);
   const [content, setContent] = useState(currentNote?.content || '');
@@ -50,10 +67,12 @@ export function NotesSidebar({
     }, 800);
   };
 
+  const pageVocabCount = vocabularies.filter((v) => v.page_number === currentPage).length;
+
   return (
-    <div className="flex flex-col h-full bg-mocha-mantle select-none">
+    <div className="flex flex-col h-full bg-mocha-mantle select-none overflow-hidden">
       {/* Header */}
-      <div className="p-3 border-b border-mocha-surface0 flex items-center justify-between">
+      <div className="p-3 border-b border-mocha-surface0 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1 bg-mocha-surface0/60 p-0.5 rounded-lg">
           <button
             onClick={() => setActiveTab('editor')}
@@ -63,7 +82,7 @@ export function NotesSidebar({
                 : 'text-mocha-subtext0 hover:text-mocha-text'
             }`}
           >
-            Page {currentPage} Note
+            Trang {currentPage} Note
           </button>
           <button
             onClick={() => setActiveTab('all')}
@@ -73,7 +92,7 @@ export function NotesSidebar({
                 : 'text-mocha-subtext0 hover:text-mocha-text'
             }`}
           >
-            All Notes ({notes.length})
+            Tất cả ({notes.length})
           </button>
         </div>
 
@@ -81,34 +100,57 @@ export function NotesSidebar({
           <div className="flex items-center gap-1 text-[11px] text-mocha-subtext0">
             {saveStatus === 'saving' && (
               <span className="flex items-center gap-1 text-mocha-yellow">
-                <Loader2 className="w-3 h-3 animate-spin" /> Saving...
+                <Loader2 className="w-3 h-3 animate-spin" /> Lưu...
               </span>
             )}
             {saveStatus === 'saved' && (
               <span className="flex items-center gap-1 text-mocha-green">
-                <Check className="w-3 h-3" /> Saved
+                <Check className="w-3 h-3" /> Đã lưu
               </span>
             )}
-            {saveStatus === 'unsaved' && <span className="text-mocha-overlay1">Unsaved</span>}
+            {saveStatus === 'unsaved' && <span className="text-mocha-overlay1">Chưa lưu</span>}
           </div>
         )}
       </div>
 
       {/* Body */}
-      <div className="flex-1 p-3 overflow-y-auto">
+      <div className="flex-1 p-3 overflow-y-auto flex flex-col space-y-4">
         {activeTab === 'editor' ? (
-          <div className="h-full flex flex-col space-y-2">
-            <textarea
-              value={content}
-              onChange={(e) => handleChange(e.target.value)}
-              placeholder={`Write markdown notes for page ${currentPage}...\n\n- Key concepts\n- Formulas\n- Summary`}
-              className="w-full flex-1 p-3 bg-mocha-base border border-mocha-surface0 rounded-xl text-xs text-mocha-text placeholder:text-mocha-overlay0 focus:outline-none focus:border-mocha-blue font-sans resize-none leading-relaxed"
-            />
-          </div>
+          <>
+            {/* Section 1: Text Note Editor */}
+            <div className="space-y-1.5 flex flex-col shrink-0">
+              <div className="flex items-center justify-between text-xs font-bold text-mocha-text">
+                <span className="flex items-center gap-1.5 text-mocha-blue">
+                  <Edit3 className="w-3.5 h-3.5" /> Ghi Chú Văn Bản
+                </span>
+                <span className="text-[10px] text-mocha-overlay1">Markdown</span>
+              </div>
+              <textarea
+                value={content}
+                onChange={(e) => handleChange(e.target.value)}
+                placeholder={`Ghi chú cho trang ${currentPage}...\n\n- Khái niệm chính\n- Tóm tắt`}
+                rows={4}
+                className="w-full p-2.5 bg-mocha-base border border-mocha-surface0 rounded-xl text-xs text-mocha-text placeholder:text-mocha-overlay0 focus:outline-none focus:border-mocha-blue font-sans resize-y min-h-[90px] leading-relaxed"
+              />
+            </div>
+
+            <div className="h-px bg-mocha-surface0 shrink-0" />
+
+            {/* Section 2: Vocabulary Table */}
+            <div className="flex-1 min-h-[220px] flex flex-col">
+              <VocabularyTable
+                currentPage={currentPage}
+                vocabularies={vocabularies}
+                onAddVocabulary={onAddVocabulary}
+                onUpdateVocabulary={onUpdateVocabulary}
+                onDeleteVocabulary={onDeleteVocabulary}
+              />
+            </div>
+          </>
         ) : (
           <div className="space-y-2">
             {notes.length === 0 ? (
-              <p className="text-center text-xs text-mocha-overlay1 py-10">No notes written yet.</p>
+              <p className="text-center text-xs text-mocha-overlay1 py-10">Chưa có ghi chú nào.</p>
             ) : (
               notes.map((note) => (
                 <div
@@ -124,7 +166,7 @@ export function NotesSidebar({
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[11px] font-bold text-mocha-blue">Page {note.page_number}</span>
+                    <span className="text-[11px] font-bold text-mocha-blue">Trang {note.page_number}</span>
                     <ChevronRight className="w-3.5 h-3.5 text-mocha-overlay1" />
                   </div>
                   <p className="text-xs text-mocha-subtext0 line-clamp-3 leading-relaxed whitespace-pre-wrap">

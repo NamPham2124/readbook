@@ -11,6 +11,8 @@ interface EpubViewerProps {
   onTotalPagesLoaded: (total: number) => void;
   onExtractToc?: (toc: any[]) => void;
   highlights: Highlight[];
+  translateMode?: boolean;
+  onTranslateSelection?: (text: string, clientX: number, clientY: number) => void;
 }
 
 export function EpubViewer({
@@ -19,6 +21,8 @@ export function EpubViewer({
   onPageChange,
   onTotalPagesLoaded,
   onExtractToc,
+  translateMode = false,
+  onTranslateSelection,
 }: EpubViewerProps) {
   const viewerRef = useRef<HTMLDivElement>(null);
   const renditionRef = useRef<any>(null);
@@ -26,6 +30,13 @@ export function EpubViewer({
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Keep references to current callbacks and state to avoid recreating rendition
+  const translateModeRef = useRef(translateMode);
+  translateModeRef.current = translateMode;
+
+  const onTranslateSelectionRef = useRef(onTranslateSelection);
+  onTranslateSelectionRef.current = onTranslateSelection;
 
   useEffect(() => {
     let isCancelled = false;
@@ -49,7 +60,7 @@ export function EpubViewer({
         });
         renditionRef.current = rendition;
 
-        // Apply dark theme
+        // Apply Catppuccin dark theme to EPUB contents
         rendition.themes.default({
           body: {
             background: '#1e1e2e !important',
@@ -67,6 +78,28 @@ export function EpubViewer({
         });
 
         await rendition.display();
+
+        // Handle Text Selection in EPUB iframe
+        rendition.on('selected', (cfiRange: string, contents: any) => {
+          if (!translateModeRef.current || !onTranslateSelectionRef.current) return;
+
+          try {
+            const iframe = viewerRef.current?.querySelector('iframe');
+            const iframeRect = iframe?.getBoundingClientRect();
+            const selection = contents.window.getSelection();
+            const selectedText = selection?.toString()?.trim();
+
+            if (selectedText && selectedText.length > 0) {
+              const range = selection.getRangeAt(0);
+              const rect = range.getBoundingClientRect();
+
+              const viewportX = (iframeRect?.left || 0) + rect.right;
+              const viewportY = (iframeRect?.top || 0) + rect.bottom;
+
+              onTranslateSelectionRef.current(selectedText, viewportX, viewportY);
+            }
+          } catch {}
+        });
 
         // Load Table of Contents
         const navigation = await book.loaded.navigation;

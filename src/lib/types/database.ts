@@ -107,6 +107,18 @@ export interface ReadingProgress {
   updated_at: string;
 }
 
+export interface Vocabulary {
+  id: string;
+  user_id: string;
+  book_id: string;
+  page_number: number;
+  word: string;
+  ipa: string | null;
+  translation: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export interface Database {
@@ -158,6 +170,12 @@ export interface Database {
         Row: ReadingProgress;
         Insert: Omit<ReadingProgress, 'id' | 'updated_at'> & { id?: string };
         Update: Partial<ReadingProgress>;
+        Relationships: [];
+      };
+      vocabularies: {
+        Row: Vocabulary;
+        Insert: Omit<Vocabulary, 'id' | 'created_at' | 'updated_at'> & { id?: string };
+        Update: Partial<Vocabulary>;
         Relationships: [];
       };
     };
