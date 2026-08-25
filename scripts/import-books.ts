@@ -35,8 +35,11 @@ if (!supabaseUrl || !serviceRoleKey) {
   process.exit(1);
 }
 
+import ws from 'ws';
+
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
+  realtime: { transport: ws as any },
 });
 
 const SUPPORTED_EXTS = new Set(['.pdf', '.epub', '.mobi', '.fb2', '.cbz']);

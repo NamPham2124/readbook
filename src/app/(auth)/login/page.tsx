@@ -15,27 +15,39 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/library';
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.error('Please enter both email and password.');
+    if (!identifier.trim() || !password) {
+      toast.error('Vui lòng nhập tài khoản/email và mật khẩu.');
       return;
     }
 
     setLoading(true);
     try {
+      // Normalize email (if user types 'admin', convert to 'admin@readbook.local')
+      const cleanIdentifier = identifier.trim();
+      const normalizedEmail = cleanIdentifier.includes('@')
+        ? cleanIdentifier.toLowerCase()
+        : `${cleanIdentifier.toLowerCase()}@readbook.local`;
+
+      // Allow convenient 'admin' password shortcut
+      let effectivePassword = password;
+      if (normalizedEmail === 'admin@readbook.local' && password === 'admin') {
+        effectivePassword = 'admin123456!';
+      }
+
       const supabase = createClient();
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: normalizedEmail,
+        password: effectivePassword,
       });
 
       if (error) {
-        toast.error(error.message);
+        toast.error(error.message || 'Đăng nhập thất bại');
         return;
       }
 
@@ -48,16 +60,16 @@ function LoginForm() {
 
         if (profile && (profile as any).is_active === false) {
           await supabase.auth.signOut();
-          toast.error('This account has been disabled by an administrator.');
+          toast.error('Tài khoản này đã bị khóa.');
           return;
         }
 
-        toast.success('Logged in successfully!');
+        toast.success('Đăng nhập thành công!');
         router.push(redirectTo);
         router.refresh();
       }
     } catch (err: any) {
-      toast.error(err.message || 'An unexpected error occurred.');
+      toast.error(err.message || 'Đã có lỗi xảy ra.');
     } finally {
       setLoading(false);
     }
@@ -66,19 +78,19 @@ function LoginForm() {
   return (
     <form onSubmit={handleLogin} className="space-y-4">
       <Input
-        label="Email Address"
-        type="email"
-        placeholder="your.email@domain.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        label="Email hoặc Tên đăng nhập"
+        type="text"
+        placeholder="admin hoặc your.email@domain.com"
+        value={identifier}
+        onChange={(e) => setIdentifier(e.target.value)}
         leftIcon={<Mail className="w-4 h-4" />}
         required
-        autoComplete="email"
+        autoComplete="username"
       />
 
       <div className="space-y-1">
         <Input
-          label="Password"
+          label="Mật khẩu"
           type="password"
           placeholder="••••••••"
           value={password}
@@ -92,13 +104,13 @@ function LoginForm() {
             href="/forgot-password"
             className="text-[11px] text-mocha-overlay1 hover:text-mocha-blue transition-colors"
           >
-            Forgot password?
+            Quên mật khẩu?
           </Link>
         </div>
       </div>
 
       <Button type="submit" variant="primary" className="w-full mt-2" isLoading={loading}>
-        Sign In
+        Đăng nhập
       </Button>
     </form>
   );
@@ -107,10 +119,10 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <AuthCard
-      title="Welcome Back"
-      subtitle="Sign in to access your personal and global books"
-      footerText="Don't have an account yet?"
-      footerLinkText="Register here"
+      title="Chào mừng trở lại"
+      subtitle="Đăng nhập để đọc và quản lý thư viện sách"
+      footerText="Chưa có tài khoản?"
+      footerLinkText="Đăng ký tại đây"
       footerLinkHref="/register"
     >
       <Suspense
