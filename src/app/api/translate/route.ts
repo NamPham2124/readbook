@@ -6,9 +6,10 @@ const MAX_CACHE_SIZE = 1000;
 
 // List of public LibreTranslate mirror endpoints to try in order
 const DEFAULT_MIRRORS = [
+  'https://translate.disroot.org',
   'https://translate.argosopentech.com',
-  'https://libretranslate.de',
   'https://translate.terraprint.co',
+  'https://libretranslate.de',
 ];
 
 export async function POST(request: NextRequest) {
@@ -40,6 +41,7 @@ export async function POST(request: NextRequest) {
     let translatedText: string | null = null;
     let lastError = 'Unable to connect to LibreTranslate service';
 
+    // 1. Try LibreTranslate instances
     for (const baseUrl of endpointsToTry) {
       try {
         const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
@@ -86,6 +88,22 @@ export async function POST(request: NextRequest) {
       } catch (err: any) {
         lastError = err.message || 'LibreTranslate mirror timeout';
       }
+    }
+
+    // 2. Open Source Fallback if all mirrors are busy
+    if (!translatedText) {
+      try {
+        const fallbackUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+          normalizedText
+        )}&langpair=${sourceLanguage}|${targetLanguage}`;
+        const fallbackRes = await fetch(fallbackUrl);
+        if (fallbackRes.ok) {
+          const fbData = await fallbackRes.json();
+          if (fbData?.responseData?.translatedText) {
+            translatedText = fbData.responseData.translatedText;
+          }
+        }
+      } catch {}
     }
 
     if (!translatedText) {
