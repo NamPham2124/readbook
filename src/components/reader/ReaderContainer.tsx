@@ -10,7 +10,7 @@ import { HighlightsSidebar } from '@/components/reader/HighlightsSidebar';
 import { TagsSidebar } from '@/components/reader/TagsSidebar';
 import { TranslationPopup } from '@/components/reader/TranslationPopup';
 import { ExportNotesModal } from '@/components/reader/ExportNotesModal';
-import { Loader2, Edit3, Highlighter, Tag as TagIcon } from 'lucide-react';
+import { Loader2, Edit3, Highlighter, Tag as TagIcon, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type {
   Book,
   Note,
@@ -413,12 +413,21 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
         handleToggleTranslateMode();
       } else if (e.key === 'e' || e.key === 'E') {
         setShowExportModal(true);
+      } else if (e.key === 'n' || e.key === 'N') {
+        setShowRightSidebar((prev) => !prev);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentPage, handlePageChange]);
+
+  // Auto-collapse right sidebar on small screens (mobile & tablet)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setShowRightSidebar(false);
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -530,10 +539,40 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
           onCancel={handleCancelTranslation}
         />
 
+        {/* Floating Open Sidebar Button on Screen Right Edge */}
+        {!showRightSidebar && (
+          <button
+            onClick={() => setShowRightSidebar(true)}
+            className="absolute top-1/2 -translate-y-1/2 right-0 z-30 flex items-center gap-1.5 py-3 px-2 sm:px-2.5 bg-mocha-surface0/95 hover:bg-mocha-surface1 border-l border-t border-b border-mocha-mauve/50 text-mocha-mauve hover:text-mocha-text rounded-l-2xl shadow-2xl backdrop-blur-md transition-all group active:scale-95 cursor-pointer"
+            title="Hiện Bảng Ghi Chú & Từ Vựng (Phím tắt: N)"
+          >
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            <div className="flex flex-col items-center gap-1">
+              <Edit3 className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-extrabold [writing-mode:vertical-rl] tracking-widest uppercase hidden sm:inline text-mocha-text">
+                Ghi chú
+              </span>
+              {(notes.length > 0 || vocabularies.length > 0) && (
+                <span className="w-4 h-4 rounded-full bg-mocha-mauve text-mocha-crust text-[9px] font-black flex items-center justify-center">
+                  {notes.length + vocabularies.length}
+                </span>
+              )}
+            </div>
+          </button>
+        )}
+
+        {/* Mobile / Tablet Backdrop when sidebar is open */}
+        {showRightSidebar && (
+          <div
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden backdrop-blur-sm transition-opacity"
+            onClick={() => setShowRightSidebar(false)}
+          />
+        )}
+
         {/* Right Sidebar: Notes, Vocabulary, Highlights, Tags */}
         {showRightSidebar && (
-          <div className="w-80 sm:w-96 bg-mocha-mantle border-l border-mocha-surface0 flex flex-col h-full shrink-0 select-none">
-            {/* Sidebar Tab Switcher */}
+          <div className="fixed inset-y-0 right-0 z-40 w-full sm:w-96 lg:relative lg:inset-auto bg-mocha-mantle border-l border-mocha-surface0 flex flex-col h-full shrink-0 select-none shadow-2xl transition-all">
+            {/* Sidebar Tab Switcher & Quick Hide Button */}
             <div className="flex items-center border-b border-mocha-surface0 p-2 gap-1 bg-mocha-mantle">
               <button
                 onClick={() => setRightActiveTab('notes')}
@@ -567,6 +606,17 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
               >
                 <TagIcon className="w-3.5 h-3.5" /> Tags
               </button>
+
+              {/* Ẩn / Đóng thanh ghi chú Button */}
+              <button
+                onClick={() => setShowRightSidebar(false)}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-bold text-mocha-subtext0 hover:text-mocha-red hover:bg-mocha-surface0 transition-colors shrink-0"
+                title="Ẩn Bảng Ghi Chú (Phím tắt: N)"
+              >
+                <ChevronRight className="w-4 h-4 hidden sm:inline" />
+                <X className="w-4 h-4 sm:hidden" />
+                <span className="hidden md:inline text-[11px]">Ẩn</span>
+              </button>
             </div>
 
             {/* Sidebar Content Panel */}
@@ -582,6 +632,7 @@ export function ReaderContainer({ bookId }: ReaderContainerProps) {
                   onUpdateVocabulary={handleUpdateVocabulary}
                   onDeleteVocabulary={handleDeleteVocabulary}
                   onOpenExportModal={() => setShowExportModal(true)}
+                  onCloseSidebar={() => setShowRightSidebar(false)}
                 />
               )}
 

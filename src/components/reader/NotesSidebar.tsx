@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Edit3, Check, Loader2, FileText, ChevronRight, BookA, Download } from 'lucide-react';
+import { Edit3, Check, Loader2, FileText, ChevronRight, BookA, Download, X } from 'lucide-react';
 import type { Note, Vocabulary } from '@/lib/types/database';
 import { VocabularyTable } from '@/components/reader/VocabularyTable';
 
@@ -23,6 +23,7 @@ interface NotesSidebarProps {
   ) => Promise<void>;
   onDeleteVocabulary: (id: string) => Promise<void>;
   onOpenExportModal?: () => void;
+  onCloseSidebar?: () => void;
 }
 
 export function NotesSidebar({
@@ -35,6 +36,7 @@ export function NotesSidebar({
   onUpdateVocabulary,
   onDeleteVocabulary,
   onOpenExportModal,
+  onCloseSidebar,
 }: NotesSidebarProps) {
   const currentNote = notes.find((n) => n.page_number === currentPage);
   const [content, setContent] = useState(currentNote?.content || '');
@@ -121,6 +123,17 @@ export function NotesSidebar({
               title="Xuất File Ghi Chú & Từ Vựng"
             >
               <Download className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {/* Close / Hide Sidebar Button */}
+          {onCloseSidebar && (
+            <button
+              onClick={onCloseSidebar}
+              className="p-1 rounded-lg text-mocha-subtext0 hover:text-mocha-red hover:bg-mocha-surface0 transition-colors"
+              title="Ẩn Bảng Ghi Chú (Phím tắt: N)"
+            >
+              <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

@@ -221,14 +221,21 @@ export function ReaderHeader({
         {/* Right Sidebar toggle */}
         <button
           onClick={onToggleRightSidebar}
-          className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
+          className={`flex items-center gap-1.5 px-2 py-1.5 rounded-xl text-xs font-semibold transition-all ${
             showRightSidebar
-              ? 'bg-mocha-surface0 text-mocha-mauve'
-              : 'text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0/60'
+              ? 'bg-mocha-mauve/20 text-mocha-mauve border border-mocha-mauve/40 shadow-sm'
+              : 'text-mocha-subtext0 hover:text-mocha-text hover:bg-mocha-surface0 border border-transparent'
           }`}
-          title="Bảng Ghi Chú & Highlight"
+          title={
+            showRightSidebar
+              ? 'Ẩn Bảng Ghi Chú & Từ Vựng (Phím tắt: N)'
+              : 'Hiện Bảng Ghi Chú & Từ Vựng (Phím tắt: N)'
+          }
         >
           <PanelRight className="w-4 h-4" />
+          <span className="hidden xl:inline text-[11px]">
+            {showRightSidebar ? 'Ẩn Ghi Chú' : 'Ghi Chú'}
+          </span>
         </button>
       </div>
     </header>
